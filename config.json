@@ -1,0 +1,7 @@
+{
+    "appDbConnStr": "postgres/wrldc@123@10.2.100.239:5432/DB",
+    "db_host": "10.2.100.239",
+    "db_name": "postgres",
+    "db_username": "postgres",
+    "db_password": "wrldc"
+}
