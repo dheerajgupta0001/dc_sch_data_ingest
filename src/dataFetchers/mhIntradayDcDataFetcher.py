@@ -28,17 +28,25 @@ def getMhIntradayDcData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), targ
     blockStr = mhIntradayData['F'][1]
     block_number = int(mhIntradayData['F'][1].split()[2].split("'")[1])
     dcColumnStr = "DC for '{}' blk(MW)".format(block_number)
+    schColumnStr = "schedule for '{}' blk(MW)".format(block_number)
     mhIntradayDataDf = pd.read_csv(targetFilePath, skiprows= 2)
+    matchingUnitNamesList = []
     if 'Unnamed: 1' in mhIntradayDataDf.columns:
         mhIntradayDataDf.rename(columns = {'Unnamed: 1':'intraday_dc_file_tag'}, inplace = True)
+        matchingUnitNamesList.append('intraday_dc_file_tag')
     if dcColumnStr in mhIntradayDataDf.columns:
         mhIntradayDataDf.rename(columns = {dcColumnStr: 'dc_data'}, inplace = True)
-    matchingUnitNamesList = ['intraday_dc_file_tag', 'dc_data']
+        matchingUnitNamesList.append('dc_data')
+    if schColumnStr in mhIntradayDataDf.columns:
+        mhIntradayDataDf.rename(columns = {schColumnStr: 'sch_data'}, inplace = True)
+        matchingUnitNamesList.append('sch_data')
+
+    # matchingUnitNamesList = ['intraday_dc_file_tag', 'dc_data']
 
     mhIntradayDataDf =  mhIntradayDataDf[matchingUnitNamesList]
     mhIntradayDataDf['block_number'] =  block_number
 
-    mhIntradayDcDf = pd.DataFrame(columns=['intraday_dc_file_tag', 'block_number', 'dc_data'])
+    mhIntradayDcDf = pd.DataFrame(columns=['intraday_dc_file_tag', 'block_number', 'dc_data', 'sch_data'])
 
     for unit in unitNamesList:
         for index, row in mhIntradayDataDf.iterrows():
@@ -47,10 +55,17 @@ def getMhIntradayDcData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), targ
                 matchingUnitList.append(mhIntradayDataDf['intraday_dc_file_tag'][index])
                 matchingUnitList.append(mhIntradayDataDf['block_number'][index])
                 matchingUnitList.append(mhIntradayDataDf['dc_data'][index])
+                matchingUnitList.append(float(mhIntradayDataDf['sch_data'][index]))
                 mhIntradayDcDf.loc[len(mhIntradayDcDf)] = matchingUnitList
     hours = int(block_number/4)
     minutes = (block_number%4 -1)*15
     dateBlock = targetDt + dt.timedelta(hours= hours, minutes= minutes)
+    # make dc as zero if scd is zero
+    for i in range(len(mhIntradayDcDf)):
+        if (mhIntradayDcDf['sch_data'][i] == 0):
+            mhIntradayDcDf['dc_data'][i] = 0
+    mhIntradayDcDf = mhIntradayDcDf.reset_index()
+    mhIntradayDcDf = mhIntradayDcDf.drop(['sch_data', 'index'], axis=1)
 
 
     mhIntradayDcDf['date_time'] = dateBlock

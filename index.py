@@ -37,8 +37,8 @@ for eachrow in filesSheet:
         #     except Exception as ex:
         #         print(ex)
 
-        if eachrow['file_type'] == 'mh_intraday_dc_data':
-            try:
-                mhIntradayDcService(excelFilePath, targetDt)
-            except Exception as ex:
-                print(ex)
+        # if eachrow['file_type'] == 'mh_intraday_dc_data':
+        #     try:
+        #         mhIntradayDcService(excelFilePath, targetDt)
+        #     except Exception as ex:
+        #         print(ex)
