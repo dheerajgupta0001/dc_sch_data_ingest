@@ -19,26 +19,26 @@ targetDt =  endDt
 for eachrow in filesSheet:
         print(eachrow['file_type'])
         excelFilePath = getExcelFilePath(eachrow, targetDt)
-        # if eachrow['file_type'] == 'guj_intraday_dc_data':
-        #     try:
-        #         gujIntradayDcService(excelFilePath, targetDt)
-        #     except Exception as ex:
-        #         print(ex)
+        if eachrow['file_type'] == 'guj_intraday_dc_data':
+            try:
+                gujIntradayDcService(excelFilePath, targetDt)
+            except Exception as ex:
+                print(ex)
 
-        # if eachrow['file_type'] == 'chatt_intraday_dc_data':
-        #     try:
-        #         chattIntradayDcService(excelFilePath, targetDt)
-        #     except Exception as ex:
-        #         print(ex)
+        if eachrow['file_type'] == 'chatt_intraday_dc_data':
+            try:
+                chattIntradayDcService(excelFilePath, targetDt)
+            except Exception as ex:
+                print(ex)
 
-        # if eachrow['file_type'] == 'mp_intraday_dc_data':
-        #     try:
-        #         mpIntradayDcService(excelFilePath, targetDt)
-        #     except Exception as ex:
-        #         print(ex)
+        if eachrow['file_type'] == 'mp_intraday_dc_data':
+            try:
+                mpIntradayDcService(excelFilePath, targetDt)
+            except Exception as ex:
+                print(ex)
 
-        # if eachrow['file_type'] == 'mh_intraday_dc_data':
-        #     try:
-        #         mhIntradayDcService(excelFilePath, targetDt)
-        #     except Exception as ex:
-        #         print(ex)
+        if eachrow['file_type'] == 'mh_intraday_dc_data':
+            try:
+                mhIntradayDcService(excelFilePath, targetDt)
+            except Exception as ex:
+                print(ex)

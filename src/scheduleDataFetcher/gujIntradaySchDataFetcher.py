@@ -20,17 +20,17 @@ def getGujIntradaySchData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), ta
     Returns:
         List[IGujIntradaySchDataRecord]: List of date(blockwise), unit name & Sch data
     """
-    gujIntradayDcRecords: List[IGujIntradaySchDataRecord] = []
-    unitNamesList = unitDetailsDf['intraday_dc_file_tag'].to_list()
+    gujIntradaySchRecords: List[IGujIntradaySchDataRecord] = []
+    unitNamesList = unitDetailsDf['intraday_sch_file_tag'].to_list()
 
     measDataRepo = MeasDataRepo(getJsonConfig()['appDbConnStr'])
     gujIntradayDataDf = pd.read_csv(
-        targetFilePath, nrows= 96)
+        targetFilePath, nrows= 96, usecols=range(2,))
     matchingUnitNamesList = []
     for unit in unitNamesList:
         if unit in gujIntradayDataDf.columns:
             matchingUnitNamesList.append(unit)
-    gujIntradayDcDf =  gujIntradayDataDf[matchingUnitNamesList]
+    gujIntradaySchDf =  gujIntradayDataDf[matchingUnitNamesList]
     hoursMinutes = gujIntradayDataDf.iloc[:, 0]
     dateTimeList = []
     for temp in hoursMinutes:
@@ -39,22 +39,22 @@ def getGujIntradaySchData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), ta
         dateBlock = targetDt + dt.timedelta(hours= hours, minutes= minutes)
         dateTimeList.append(dateBlock)
 
-    gujIntradayDcDf['date_time'] = dateTimeList
-    gujIntradayDcDf = gujIntradayDcDf.melt(id_vars=['date_time'], value_name='dc_data', var_name= 'unit_name')
-    gujIntradayDcDf['dc_data'] = gujIntradayDcDf['dc_data'].round()
-    gujIntradayDcDf['plant_name'] = 'xxx'
-    gujIntradayDcDf['plant_id'] = 0
+    gujIntradaySchDf['date_time'] = dateTimeList
+    gujIntradaySchDf = gujIntradaySchDf.melt(id_vars=['date_time'], value_name='sch_data', var_name= 'unit_name')
+    gujIntradaySchDf['sch_data'] = gujIntradaySchDf['sch_data'].round()
+    gujIntradaySchDf['plant_name'] = 'xxx'
+    gujIntradaySchDf['plant_id'] = 0
 
-    for i in range(len(gujIntradayDcDf)):
-        # gujIntradayDcDf['plant_id'][i] = unitDetailsDf.loc[unitDetailsDf['intraday_dc_file_tag'] == gujIntradayDcDf.loc[i, "unit_name"], 'id']
-        # gujIntradayDcDf['plant_name'][i] = unitDetailsDf.loc[unitDetailsDf['intraday_dc_file_tag'] == gujIntradayDcDf.loc[i, "unit_name"], 'plant_name']
+    for i in range(len(gujIntradaySchDf)):
+        # gujIntradaySchDf['plant_id'][i] = unitDetailsDf.loc[unitDetailsDf['intraday_sch_file_tag'] == gujIntradaySchDf.loc[i, "unit_name"], 'id']
+        # gujIntradaySchDf['plant_name'][i] = unitDetailsDf.loc[unitDetailsDf['intraday_sch_file_tag'] == gujIntradaySchDf.loc[i, "unit_name"], 'plant_name']
 
-        gujIntradayDcDf.loc[i, 'plant_name'] = unitDetailsDf[unitDetailsDf['intraday_dc_file_tag'] == gujIntradayDcDf.loc[i, "unit_name"]]['plant_name'].values[0]
-        gujIntradayDcDf.loc[i, 'plant_id'] = unitDetailsDf[unitDetailsDf['intraday_dc_file_tag'] == gujIntradayDcDf.loc[i, "unit_name"]]['id'].values[0]
+        gujIntradaySchDf.loc[i, 'plant_name'] = unitDetailsDf[unitDetailsDf['intraday_sch_file_tag'] == gujIntradaySchDf.loc[i, "unit_name"]]['plant_name'].values[0]
+        gujIntradaySchDf.loc[i, 'plant_id'] = unitDetailsDf[unitDetailsDf['intraday_sch_file_tag'] == gujIntradaySchDf.loc[i, "unit_name"]]['id'].values[0]
 
     # Remove column name 'unit_name'
-    gujIntradayDcDf = gujIntradayDcDf.drop(['unit_name'], axis=1)
+    gujIntradaySchDf = gujIntradaySchDf.drop(['unit_name'], axis=1)
     # convert dataframe to list of dictionaries
-    gujIntradayDcRecords = gujIntradayDcDf.to_dict('records')
+    gujIntradaySchRecords = gujIntradaySchDf.to_dict('records')
 
-    return gujIntradayDcRecords
+    return gujIntradaySchRecords

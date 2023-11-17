@@ -19,26 +19,26 @@ targetDt =  endDt
 for eachrow in filesSheet:
         print(eachrow['file_type'])
         excelFilePath = getExcelFilePath(eachrow, targetDt)
-        if eachrow['file_type'] == 'guj_intraday_sch_data':
+        # if eachrow['file_type'] == 'guj_intraday_sch_data':
+        #     try:
+        #         gujIntradaySchService(excelFilePath, targetDt)
+        #     except Exception as ex:
+        #         print(ex)
+
+        if eachrow['file_type'] == 'chatt_intraday_sch_data':
             try:
-                gujIntradaySchService(excelFilePath, targetDt)
+                chattIntradaySchService(excelFilePath, targetDt)
             except Exception as ex:
                 print(ex)
 
-        # if eachrow['file_type'] == 'chatt_intraday_sch_data':
-        #     try:
-        #         chattIntradaySchService(excelFilePath, targetDt)
-        #     except Exception as ex:
-        #         print(ex)
+        if eachrow['file_type'] == 'mp_intraday_sch_data':
+            try:
+                mpIntradaySchService(excelFilePath, targetDt)
+            except Exception as ex:
+                print(ex)
 
-        # if eachrow['file_type'] == 'mp_intraday_sch_data':
-        #     try:
-        #         mpIntradaySchService(excelFilePath, targetDt)
-        #     except Exception as ex:
-        #         print(ex)
-
-        # if eachrow['file_type'] == 'mh_intraday_sch_data':
-        #     try:
-        #         mhIntradaySchService(excelFilePath, targetDt)
-        #     except Exception as ex:
-        #         print(ex)
+        if eachrow['file_type'] == 'mh_intraday_sch_data':
+            try:
+                mhIntradaySchService(excelFilePath, targetDt)
+            except Exception as ex:
+                print(ex)
