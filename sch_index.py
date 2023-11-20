@@ -19,11 +19,11 @@ targetDt =  endDt
 for eachrow in filesSheet:
         print(eachrow['file_type'])
         excelFilePath = getExcelFilePath(eachrow, targetDt)
-        # if eachrow['file_type'] == 'guj_intraday_sch_data':
-        #     try:
-        #         gujIntradaySchService(excelFilePath, targetDt)
-        #     except Exception as ex:
-        #         print(ex)
+        if eachrow['file_type'] == 'guj_intraday_sch_data':
+            try:
+                gujIntradaySchService(excelFilePath, targetDt)
+            except Exception as ex:
+                print(ex)
 
         if eachrow['file_type'] == 'chatt_intraday_sch_data':
             try:

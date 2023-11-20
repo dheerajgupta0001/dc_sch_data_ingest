@@ -5,7 +5,6 @@ import numpy as np
 from src.config.appConfig import getJsonConfig
 import datetime as dt
 from src.typeDefs.scheduleTypeRecord.gujIntradaySchRecord import IGujIntradaySchDataRecord
-from src.repos.measDataRepo import MeasDataRepo
 from src.repos.getUnitNameForState import getUnitNameForState
 from typing import List
 
@@ -22,20 +21,22 @@ def getGujIntradaySchData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), ta
     """
     gujIntradaySchRecords: List[IGujIntradaySchDataRecord] = []
     unitNamesList = unitDetailsDf['intraday_sch_file_tag'].to_list()
-
-    measDataRepo = MeasDataRepo(getJsonConfig()['appDbConnStr'])
+    # usecols=range(3,)
     gujIntradayDataDf = pd.read_csv(
-        targetFilePath, nrows= 96, usecols=range(2,))
+        targetFilePath, nrows= 96)
+    gujIntradayDataDf = gujIntradayDataDf.iloc[:, 2:]
     matchingUnitNamesList = []
     for unit in unitNamesList:
         if unit in gujIntradayDataDf.columns:
             matchingUnitNamesList.append(unit)
     gujIntradaySchDf =  gujIntradayDataDf[matchingUnitNamesList]
+    gujIntradayDataDf = gujIntradayDataDf.loc[:, ~gujIntradayDataDf.columns.str.contains('^Unnamed')]
     hoursMinutes = gujIntradayDataDf.iloc[:, 0]
     dateTimeList = []
     for temp in hoursMinutes:
-        hours = int(temp.split(':')[0])
-        minutes = int(temp.split(':')[1])
+        hrsMin = temp.split('-')[0]
+        hours = int(hrsMin.split(':')[0])
+        minutes = int(hrsMin.split(':')[1])
         dateBlock = targetDt + dt.timedelta(hours= hours, minutes= minutes)
         dateTimeList.append(dateBlock)
 
