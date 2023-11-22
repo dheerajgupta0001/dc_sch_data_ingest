@@ -10,7 +10,8 @@ from src.typeDefs.scheduleTypeRecord.mhIntradaySchRecord import IMhIntradaySchDa
 from src.scheduleDataFetcher.chattIntradaySchDataFetcher import getChattIntradaySchData
 from src.scheduleDataFetcher.mpIntradaySchDataFetcher import getMpIntradaySchData
 from src.scheduleDataFetcher.gujIntradaySchDataFetcher import getGujIntradaySchData
-from src.scheduleDataFetcher.mhIntradaySchDataFetcher import getMhIntradaySchData
+# from src.scheduleDataFetcher.mhIntradaySchDataFetcher import getMhIntradaySchData
+from src.scheduleDataFetcher.testMhIntradaySchDataFetcher import getMhIntradaySchData
 
 
 def getExcelFilePath(fileInfo: IFileInfo, targetMonth: dt.datetime) -> str:
