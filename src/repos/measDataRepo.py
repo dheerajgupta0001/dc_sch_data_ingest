@@ -8,6 +8,7 @@ from src.typeDefs.gujIntradayDcRecord import IGujIntradayDcDataRecord
 from src.typeDefs.chattIntradayDcRecord import IChattIntradayDcDataRecord
 from src.typeDefs.mpIntradayDcRecord import IMpIntradayDcDataRecord
 from src.typeDefs.mhIntradayDcRecord import IMhIntradayDcDataRecord
+from src.repos.getDayAheadUnitNameForState import getDayAheadUnitNameForState
 
 
 class MeasDataRepo():
@@ -32,6 +33,17 @@ class MeasDataRepo():
             List: List of unit name from database for that state
         """
         return getUnitNameForState(stateName)
+    
+    def getDayAheadUnitNameForState(self, stateName: str) -> List:
+        """_summary_
+
+        Args:
+            stateName (str): _description_
+
+        Returns:
+            List: List of unit name from database for that state
+        """
+        return getDayAheadUnitNameForState(stateName)
 
     def insertGujIntradayDcData(self, dataSamples: List[IGujIntradayDcDataRecord]) -> bool:
         """inserts a entity metrics time series data into the app db
