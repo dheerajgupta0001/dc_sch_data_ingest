@@ -21,10 +21,28 @@ def getGujIntradaySchData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), ta
     """
     gujIntradaySchRecords: List[IGujIntradaySchDataRecord] = []
     unitNamesList = unitDetailsDf['intraday_sch_file_tag'].to_list()
-    # usecols=range(3,)
+
+    # check how many entities are clubbed using comma separated in master table
+    commaSeparatedList = []
+    for i in range(len(unitNamesList)):
+        if (unitNamesList[i].count(",") + 1)>1:
+            commaSeparatedList.append(unitNamesList[i])
+
     gujIntradayDataDf = pd.read_csv(
         targetFilePath, nrows= 96)
     gujIntradayDataDf = gujIntradayDataDf.iloc[:, 2:]
+
+    # check matching columns starts
+    for temp in commaSeparatedList:
+        tempList = temp.split(',')
+        matchingList = []
+        for unit in tempList:
+            if unit in gujIntradayDataDf.columns:
+                matchingList.append(unit)
+        combinedGasData = gujIntradayDataDf[matchingList]
+        gujIntradayDataDf[temp] = combinedGasData.sum(axis=1)
+    # check matching columns ends
+    
     matchingUnitNamesList = []
     for unit in unitNamesList:
         if unit in gujIntradayDataDf.columns:
