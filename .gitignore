@@ -2,6 +2,7 @@ project_env/
 node_modules/
 sqls/
 logs/
+app_logs/
 config.*
 data/
 __pycache__
