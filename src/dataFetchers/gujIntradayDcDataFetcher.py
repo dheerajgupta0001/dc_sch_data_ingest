@@ -23,9 +23,31 @@ def getGujIntradayDcData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), tar
     gujIntradayDcRecords: List[IGujIntradayDcDataRecord] = []
     unitNamesList = unitDetailsDf['intraday_dc_file_tag'].to_list()
 
-    measDataRepo = MeasDataRepo(getJsonConfig()['appDbConnStr'])
+    # separate the comma separated flags
+    tempListWithCommaSepValues = [map(lambda x: x.strip(), item.split('$')) for item in unitNamesList]
+    unitNamesListWithCommaSep = [item for sub_list in tempListWithCommaSepValues for item in sub_list]
+
+    # check how many entities are clubbed using comma separated in master table
+    commaSeparatedList = []
+    for i in range(len(unitNamesList)):
+        if (unitNamesList[i].count("$") + 1)>1:
+            commaSeparatedList.append(unitNamesList[i])
+    # targetFilePath = r'\\\\10.2.100.239\\Guj_Data\\Guj_Intraday_DC_Sch_Files\\Declared_Capacity_27-09-2024.csv'
     gujIntradayDataDf = pd.read_csv(
         targetFilePath, nrows= 96)
+    
+    # check matching columns starts
+    for temp in commaSeparatedList:
+        tempList = temp.split('$')
+        matchingList = []
+        for unit in tempList:
+            if unit in gujIntradayDataDf.columns:
+                matchingList.append(unit)
+        combinedGasData = gujIntradayDataDf[matchingList]
+        gujIntradayDataDf[temp] = combinedGasData.sum(axis=1)
+    # check matching columns ends
+
+    measDataRepo = MeasDataRepo(getJsonConfig()['appDbConnStr'])
     matchingUnitNamesList = []
     for unit in unitNamesList:
         if unit in gujIntradayDataDf.columns:

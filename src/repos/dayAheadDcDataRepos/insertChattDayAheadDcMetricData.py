@@ -3,13 +3,14 @@ import psycopg2
 from typing import List
 import datetime as dt
 from src.config.appConfig import initConfigs, getJsonConfig
-from src.typeDefs.scheduleTypeRecord.chattIntradaySchRecord import IChattIntradaySchDataRecord
+from src.typeDefs.chattIntradayDcRecord import IChattIntradayDcDataRecord
+from src.typeDefs.dayAheadDcTypeRecord.chattDayAheadDcRecord import IChattDayAheadDcDataRecord
 
 initConfigs()
 dbConfig = getJsonConfig()
 
 
-def insertChattIntradaySchData(dataRows: List[IChattIntradaySchDataRecord]) -> bool:
+def insertChattDayAheadDcData(dataRows: List[IChattDayAheadDcDataRecord]) -> bool:
     """Inserts a entity metrics time series data into the app db
 
     Args:
@@ -42,16 +43,16 @@ def insertChattIntradaySchData(dataRows: List[IChattIntradaySchDataRecord]) -> b
                 dataRow = dataRows[insRowIter]
 
                 dataInsertionTuple = (dt.datetime.strftime(dataRow['date_time'], '%Y-%m-%d %H:%M:%S'), dataRow['plant_name'],
-                                      dataRow['sch_data'], dataRow['plant_id'])
+                                      dataRow['dc_data'], dataRow['plant_id'])
                 dataInsertionTuples.append(dataInsertionTuple)
 
             # prepare sql for insertion and execute
             dataText = ','.join(dbCur.mogrify('(%s,%s,%s,%s)', row).decode(
                 "utf-8") for row in dataInsertionTuples)
-            sqlTxt = 'INSERT INTO public.intraday_sch_data(\
-        	date_time, plant_name, sch_data, plant_id)\
+            sqlTxt = 'INSERT INTO public.intraday_dc_data(\
+        	date_time, plant_name, dc_data, plant_id)\
         	VALUES {0} on conflict (date_time, plant_id) \
-            do update set sch_data = excluded.sch_data'.format(dataText)
+            do update set dc_data = excluded.dc_data'.format(dataText)
             dbCur.execute(sqlTxt)
             dbConn.commit()
 

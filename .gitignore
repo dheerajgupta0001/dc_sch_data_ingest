@@ -1,5 +1,6 @@
 project_env/
 node_modules/
+sqls/
 logs/
 config.*
 data/

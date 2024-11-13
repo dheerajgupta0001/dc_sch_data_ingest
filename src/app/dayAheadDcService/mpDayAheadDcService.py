@@ -1,6 +1,6 @@
 from src.config.appConfig import getJsonConfig
 from src.dayAheadDcDataFetcher.dataFetcherHandler import getMpDayAheadDcData
-from src.repos.scheduleDataRepos.measDataRepo import MeasDataRepo
+from src.repos.dayAheadDcDataRepos.insertMpDayAheadDcMetricData import insertMpDayAheadDcData
 from typing import List
 import datetime as dt
 from src.typeDefs.dayAheadDcTypeRecord.mpDayAheadDcRecord import IMpDayAheadDcDataRecord
@@ -12,7 +12,7 @@ def mpDayAheadDcService(mpIntradaySchFilePath: str, targetDt: dt.datetime):
     unitDetailsDf = measDataRepo.getUnitNameForState(stateName)
     mpDayAheadDcRecords: [IMpDayAheadDcDataRecord] = getMpDayAheadDcData(mpIntradaySchFilePath, unitDetailsDf, targetDt) # type: ignore
 
-    isRawCreationSuccess = measDataRepo.insertMpIntradaySchData(mpDayAheadDcRecords)
+    isRawCreationSuccess = measDataRepo.insertMpDayAheadDcData(mpDayAheadDcRecords)
     if isRawCreationSuccess:
         print("MP Day Ahead DC data insertion SUCCESSFUL")
     else:

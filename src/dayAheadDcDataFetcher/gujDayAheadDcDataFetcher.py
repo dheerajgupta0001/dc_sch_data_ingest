@@ -5,6 +5,7 @@ import numpy as np
 from src.config.appConfig import getJsonConfig
 import datetime as dt
 from src.typeDefs.dayAheadDcTypeRecord.gujDayAheadDcRecord import IGujDayAheadDcDataRecord
+from src.repos.measDataRepo import MeasDataRepo
 from src.repos.getUnitNameForState import getUnitNameForState
 from typing import List
 
@@ -17,45 +18,63 @@ def getGujDayAheadDcData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), tar
         targetDt (dt.datetime): Date for which data has to be fetched (preferably today)
     
     Returns:
-        List[IGujDayAheadDcDataRecord]: List of date(blockwise), unit name & Sch data
+        List[IGujDayAheadDcDataRecord]: List of date(blockwise), unit name & DC data
     """
-    gujIntradaySchRecords: List[IGujDayAheadDcDataRecord] = []
-    unitNamesList = unitDetailsDf['intraday_sch_file_tag'].to_list()
-    # usecols=range(3,)
-    gujIntradayDataDf = pd.read_csv(
+    gujDayAheadDcRecords: List[IGujDayAheadDcDataRecord] = []
+    unitNamesList = unitDetailsDf['day_ahead_dc_file_tag'].to_list()
+
+    # separate the comma separated flags
+    tempListWithCommaSepValues = [map(lambda x: x.strip(), item.split('$')) for item in unitNamesList]
+    unitNamesListWithCommaSep = [item for sub_list in tempListWithCommaSepValues for item in sub_list]
+
+    # check how many entities are clubbed using comma separated in master table
+    commaSeparatedList = []
+    for i in range(len(unitNamesList)):
+        if (unitNamesList[i].count("$") + 1)>1:
+            commaSeparatedList.append(unitNamesList[i])
+    # targetFilePath = r'\\\\10.2.100.239\\Guj_Data\\Guj_Intraday_DC_Sch_Files\\Declared_Capacity_27-09-2024.csv'
+    gujDayAheadDataDf = pd.read_csv(
         targetFilePath, nrows= 96)
-    gujIntradayDataDf = gujIntradayDataDf.iloc[:, 2:]
+    
+    # check matching columns starts
+    for temp in commaSeparatedList:
+        tempList = temp.split('$')
+        matchingList = []
+        for unit in tempList:
+            if unit in gujDayAheadDataDf.columns:
+                matchingList.append(unit)
+        combinedGasData = gujDayAheadDataDf[matchingList]
+        gujDayAheadDataDf[temp] = combinedGasData.sum(axis=1)
+    # check matching columns ends
+
+    # measDataRepo = MeasDataRepo(getJsonConfig()['appDbConnStr'])
     matchingUnitNamesList = []
     for unit in unitNamesList:
-        if unit in gujIntradayDataDf.columns:
+        if unit in gujDayAheadDataDf.columns:
             matchingUnitNamesList.append(unit)
-    gujIntradaySchDf =  gujIntradayDataDf[matchingUnitNamesList]
-    gujIntradayDataDf = gujIntradayDataDf.loc[:, ~gujIntradayDataDf.columns.str.contains('^Unnamed')]
-    hoursMinutes = gujIntradayDataDf.iloc[:, 0]
+    gujDayAheadDcDf =  gujDayAheadDataDf[matchingUnitNamesList]
+    hoursMinutes = gujDayAheadDataDf.iloc[:, 0]
     dateTimeList = []
+    targetDt =  targetDt + dt.timedelta(1)
     for temp in hoursMinutes:
-        hrsMin = temp.split('-')[0]
-        hours = int(hrsMin.split(':')[0])
-        minutes = int(hrsMin.split(':')[1])
+        hours = int(temp.split(':')[0])
+        minutes = int(temp.split(':')[1])
         dateBlock = targetDt + dt.timedelta(hours= hours, minutes= minutes)
         dateTimeList.append(dateBlock)
 
-    gujIntradaySchDf['date_time'] = dateTimeList
-    gujIntradaySchDf = gujIntradaySchDf.melt(id_vars=['date_time'], value_name='sch_data', var_name= 'unit_name')
-    gujIntradaySchDf['sch_data'] = gujIntradaySchDf['sch_data'].round()
-    gujIntradaySchDf['plant_name'] = 'xxx'
-    gujIntradaySchDf['plant_id'] = 0
+    gujDayAheadDcDf['date_time'] = dateTimeList
+    gujDayAheadDcDf = gujDayAheadDcDf.melt(id_vars=['date_time'], value_name='dc_data', var_name= 'unit_name')
+    gujDayAheadDcDf['dc_data'] = gujDayAheadDcDf['dc_data'].round()
+    gujDayAheadDcDf['plant_name'] = 'xxx'
+    gujDayAheadDcDf['plant_id'] = 0
 
-    for i in range(len(gujIntradaySchDf)):
-        # gujIntradaySchDf['plant_id'][i] = unitDetailsDf.loc[unitDetailsDf['intraday_sch_file_tag'] == gujIntradaySchDf.loc[i, "unit_name"], 'id']
-        # gujIntradaySchDf['plant_name'][i] = unitDetailsDf.loc[unitDetailsDf['intraday_sch_file_tag'] == gujIntradaySchDf.loc[i, "unit_name"], 'plant_name']
-
-        gujIntradaySchDf.loc[i, 'plant_name'] = unitDetailsDf[unitDetailsDf['intraday_sch_file_tag'] == gujIntradaySchDf.loc[i, "unit_name"]]['plant_name'].values[0]
-        gujIntradaySchDf.loc[i, 'plant_id'] = unitDetailsDf[unitDetailsDf['intraday_sch_file_tag'] == gujIntradaySchDf.loc[i, "unit_name"]]['id'].values[0]
+    for i in range(len(gujDayAheadDcDf)):
+        gujDayAheadDcDf.loc[i, 'plant_name'] = unitDetailsDf[unitDetailsDf['day_ahead_dc_file_tag'] == gujDayAheadDcDf.loc[i, "unit_name"]]['plant_name'].values[0]
+        gujDayAheadDcDf.loc[i, 'plant_id'] = unitDetailsDf[unitDetailsDf['day_ahead_dc_file_tag'] == gujDayAheadDcDf.loc[i, "unit_name"]]['id'].values[0]
 
     # Remove column name 'unit_name'
-    gujIntradaySchDf = gujIntradaySchDf.drop(['unit_name'], axis=1)
+    gujDayAheadDcDf = gujDayAheadDcDf.drop(['unit_name'], axis=1)
     # convert dataframe to list of dictionaries
-    gujIntradaySchRecords = gujIntradaySchDf.to_dict('records')
+    gujDayAheadDcRecords = gujDayAheadDcDf.to_dict('records')
 
-    return gujIntradaySchRecords
+    return gujDayAheadDcRecords

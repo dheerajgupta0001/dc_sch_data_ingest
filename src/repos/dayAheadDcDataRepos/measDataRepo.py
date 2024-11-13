@@ -1,9 +1,9 @@
 from typing import List
-from src.repos.scheduleDataRepos.insertChattIntradaySchMetricData import insertChattIntradaySchData
-from src.repos.scheduleDataRepos.insertMpIntradaySchMetricData import insertMpIntradaySchData
-from src.repos.scheduleDataRepos.insertMhIntradaySchMetricData import insertMhIntradaySchData
-from src.repos.scheduleDataRepos.insertGujIntradaySchMetricData import insertGujIntradaySchData
 from src.repos.dayAheadDcDataRepos.getUnitNameForState import getUnitNameForState
+from src.repos.dayAheadDcDataRepos.insertChattDayAheadDcMetricData import insertChattDayAheadDcData
+from src.repos.dayAheadDcDataRepos.insertGujDayAheadDcMetricData import insertGujDayAheadDcData
+from src.repos.dayAheadDcDataRepos.insertMhDayAheadDcMetricData import insertMhDayAheadDcData
+from src.repos.scheduleDataRepos.insertMpIntradaySchMetricData import insertMpIntradaySchData
 from src.typeDefs.dayAheadDcTypeRecord.chattDayAheadDcRecord import IChattDayAheadDcDataRecord
 from src.typeDefs.dayAheadDcTypeRecord.mpDayAheadDcRecord import IMpDayAheadDcDataRecord
 from src.typeDefs.dayAheadDcTypeRecord.mhDayAheadDcRecord import IMhDayAheadDcDataRecord
@@ -33,12 +33,19 @@ class MeasDataRepo():
         """
         return getUnitNameForState(stateName)
     
-    def insertChattIntradaySchData(self, dataSamples: List[IChattDayAheadDcDataRecord]) -> bool:
+    def insertChattDayAheadDcData(self, dataSamples: List[IChattDayAheadDcDataRecord]) -> bool:
         """inserts a entity metrics time series data into the app db
         Returns:
             bool: returns true if process is ok
         """
-        return insertChattIntradaySchData(dataSamples)
+        return insertChattDayAheadDcData(dataSamples)
+    
+    def insertGujDayAheadDcData(self, dataSamples: List[IGujDayAheadDcDataRecord]) -> bool:
+        """inserts a entity metrics time series data into the app db
+        Returns:
+            bool: returns true if process is ok
+        """
+        return insertGujDayAheadDcData(dataSamples)
     
     def insertMpIntradaySchData(self, dataSamples: List[IMpDayAheadDcDataRecord]) -> bool:
         """inserts a entity metrics time series data into the app db
@@ -47,16 +54,11 @@ class MeasDataRepo():
         """
         return insertMpIntradaySchData(dataSamples)
     
-    def insertMhIntradaySchData(self, dataSamples: List[IMhDayAheadDcDataRecord]) -> bool:
+    def insertMhDayAheadDcData(self, dataSamples: List[IMhDayAheadDcDataRecord]) -> bool:
         """inserts a entity metrics time series data into the app db
         Returns:
             bool: returns true if process is ok
         """
-        return insertMhIntradaySchData(dataSamples)
+        return insertMhDayAheadDcData(dataSamples)
     
-    def insertGujIntradaySchData(self, dataSamples: List[IGujDayAheadDcDataRecord]) -> bool:
-        """inserts a entity metrics time series data into the app db
-        Returns:
-            bool: returns true if process is ok
-        """
-        return insertGujIntradaySchData(dataSamples)
+    

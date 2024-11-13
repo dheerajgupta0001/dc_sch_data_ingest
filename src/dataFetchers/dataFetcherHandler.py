@@ -7,11 +7,9 @@ from src.typeDefs.gujIntradayDcRecord import IGujIntradayDcDataRecord
 from src.typeDefs.chattIntradayDcRecord import IChattIntradayDcDataRecord
 from src.typeDefs.mpIntradayDcRecord import IMpIntradayDcDataRecord
 from src.typeDefs.mhIntradayDcRecord import IMhIntradayDcDataRecord
-# from src.dataFetchers.gujIntradayDcDataFetcher import getGujIntradayDcData
-from src.dataFetchers.testGujIntradayDcDataFetcher import getGujIntradayDcData
+from src.dataFetchers.gujIntradayDcDataFetcher import getGujIntradayDcData
 from src.dataFetchers.chattIntradayDcDataFetcher import getChattIntradayDcData
 from src.dataFetchers.mpIntradayDcDataFetcher import getMpIntradayDcData
-# from src.dataFetchers.testMhIntradayDcDataFetcher import getMhIntradayDcData
 from src.dataFetchers.mhIntradayDcDataFetcher import getMhIntradayDcData
 
 
@@ -23,6 +21,16 @@ def getExcelFilePath(fileInfo: IFileInfo, targetMonth: dt.datetime) -> str:
 
     targetFilename = fileInfo['filename'].replace('{{dt}}', targetDateStr)
     targetFilePath = os.path.join(fileInfo['folder_location'], targetFilename)
+    return targetFilePath
+
+def getExcelFilePath(folder_location: str, filename:str, format:str, targetMonth: dt.datetime) -> str:
+
+    targetDateStr = ''
+    if not pd.isna(format):
+        targetDateStr = dt.datetime.strftime(targetMonth, format)
+
+    targetFilename = filename.replace('{{dt}}', targetDateStr)
+    targetFilePath = os.path.join(folder_location, targetFilename)
     return targetFilePath
 
 

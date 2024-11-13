@@ -20,33 +20,22 @@ def getMhDayAheadDcData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), targ
     Returns:
         List[IMhDayAheadDcDataRecord]: List of date(blockwise), unit name & Sch data
     """
-    mhIntradaySchRecords: List[IMhDayAheadDcDataRecord] = []
-    unitNamesList = unitDetailsDf['intraday_sch_file_tag'].to_list()
+    mhDayAheadDcRecords: List[IMhDayAheadDcDataRecord] = []
+    unitNamesList = unitDetailsDf['day_ahead_dc_file_tag'].to_list()
 
-    # measDataRepo = MeasDataRepo(getJsonConfig()['appDbConnStr'])
+    # check how many entities are clubbed using comma separated in master table
+    commaSeparatedList = []
+    for i in range(len(unitNamesList)):
+        if (unitNamesList[i].count("$") + 1)>1:
+            commaSeparatedList.append(unitNamesList[i])
 
     # mhIntradayDataDf = pd.read_csv(targetFilePath, skiprows=5, usecols=range(98))
-    mhIntradayDataDf = pd.read_csv(targetFilePath, skiprows=6, on_bad_lines='skip', header = None, usecols = [1, *range(106,202)])
+    mhDayAheadDataDf = pd.read_excel(targetFilePath, skiprows=5, nrows = 97)
     # mhIntradayDataDf = mhIntradayDataDf.loc[:, ~mhIntradayDataDf.columns.str.contains('^Unnamed')]
-    mhIntradayDataDf = mhIntradayDataDf.rename(columns={1: 'intraday_sch_file_tag'})
-    mhIntradayDataDf = mhIntradayDataDf.melt(id_vars=['intraday_sch_file_tag'], value_name='sch_data', var_name= 'block_number')
-    mhIntradaySchDf = pd.DataFrame(columns=['intraday_sch_file_tag', 'block_number', 'sch_data'])
-
-    for unit in unitNamesList:
-        for index, row in mhIntradayDataDf.iterrows():
-            if unit == row['intraday_sch_file_tag']:
-                matchingUnitList = []
-                matchingUnitList.append(mhIntradayDataDf['intraday_sch_file_tag'][index])
-                matchingUnitList.append(mhIntradayDataDf['block_number'][index])
-                matchingUnitList.append(mhIntradayDataDf['sch_data'][index])
-                mhIntradaySchDf.loc[len(mhIntradaySchDf)] = matchingUnitList
-
-    mhIntradaySchDf = pd.pivot_table(mhIntradaySchDf, values ='sch_data', index =['block_number'],
-                         columns =['intraday_sch_file_tag'])
-    mhIntradaySchDf = mhIntradaySchDf.reset_index()
     dateTimeList = []
     hours = 0
     minutes = 0
+    targetDt =  targetDt + dt.timedelta(1)
     for temp in range(96):
         if temp%4 == 0 and temp >0:
             hours += 1
@@ -55,22 +44,41 @@ def getMhDayAheadDcData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), targ
         if minutes == 60:
             minutes = 0
         dateTimeList.append(dateBlock)
+    mhDayAheadDataDf = mhDayAheadDataDf.loc[:, ~mhDayAheadDataDf.columns.str.contains('^Unnamed')]
+    mhDayAheadDataDf = mhDayAheadDataDf.iloc[1:]
+    mhDayAheadDataDf= mhDayAheadDataDf.drop('TOTAL', axis=1)
 
+    # section for handling dollar separated unit starts
+    for temp in commaSeparatedList:
+        tempList = temp.split('$')
+        matchingList = []
+        for unit in tempList:
+            if unit in mhDayAheadDataDf.columns:
+                matchingList.append(unit)
+        combinedGasData = mhDayAheadDataDf[matchingList]
+        mhDayAheadDataDf[temp] = combinedGasData.sum(axis=1)
 
-    mhIntradaySchDf['date_time'] = dateTimeList
-    mhIntradaySchDf = mhIntradaySchDf.drop(columns=['block_number'])
-    mhIntradaySchDf = mhIntradaySchDf.melt(id_vars=['date_time'], value_name='sch_data', var_name= 'unit_name')
-    # mhIntradaySchDf['sch_data'] = mhIntradaySchDf['sch_data'].round()
-    mhIntradaySchDf['plant_name'] = 'xxx'
-    mhIntradaySchDf['plant_id'] = 0
+    # section for handling matching columns starts
+    matchingUnitNamesList = []
+    for unit in unitNamesList:
+        if unit in mhDayAheadDataDf.columns:
+            matchingUnitNamesList.append(unit)
+    mhDayAheadDcDf =  mhDayAheadDataDf[matchingUnitNamesList]
+    # check matching columns ends
 
-    for i in range(len(mhIntradaySchDf)):
-        mhIntradaySchDf.loc[i, 'plant_name'] = unitDetailsDf[unitDetailsDf['intraday_sch_file_tag'] == mhIntradaySchDf.loc[i, "unit_name"]]['plant_name'].values[0]
-        mhIntradaySchDf.loc[i, 'plant_id'] = unitDetailsDf[unitDetailsDf['intraday_sch_file_tag'] == mhIntradaySchDf.loc[i, "unit_name"]]['id'].values[0]
+    mhDayAheadDcDf['date_time'] = dateTimeList
+    mhDayAheadDcDf = mhDayAheadDcDf.melt(id_vars=['date_time'], value_name='dc_data', var_name= 'unit_name')
+    mhDayAheadDcDf['dc_data'] = mhDayAheadDcDf['dc_data'].astype(int)
+    mhDayAheadDcDf['plant_name'] = 'xxx'
+    mhDayAheadDcDf['plant_id'] = 0
+
+    for i in range(len(mhDayAheadDcDf)):
+        mhDayAheadDcDf.loc[i, 'plant_name'] = unitDetailsDf[unitDetailsDf['day_ahead_dc_file_tag'] == mhDayAheadDcDf.loc[i, "unit_name"]]['plant_name'].values[0]
+        mhDayAheadDcDf.loc[i, 'plant_id'] = unitDetailsDf[unitDetailsDf['day_ahead_dc_file_tag'] == mhDayAheadDcDf.loc[i, "unit_name"]]['id'].values[0]
 
     # Remove column name 'unit_name'
-    mhIntradaySchDf = mhIntradaySchDf.drop(['unit_name'], axis=1)
+    mhDayAheadDcDf = mhDayAheadDcDf.drop(['unit_name'], axis=1)
     # convert dataframe to list of dictionaries
-    mhIntradaySchRecords = mhIntradaySchDf.to_dict('records')
+    mhDayAheadDcRecords = mhDayAheadDcDf.to_dict('records')
 
-    return mhIntradaySchRecords
+    return mhDayAheadDcRecords

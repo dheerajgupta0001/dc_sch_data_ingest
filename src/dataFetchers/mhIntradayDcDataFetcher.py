@@ -24,13 +24,13 @@ def getMhIntradayDcData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), targ
     unitNamesList = unitDetailsDf['intraday_dc_file_tag'].to_list()
 
     # separate the comma separated flags
-    tempListWithCommaSepValues = [map(lambda x: x.strip(), item.split(',')) for item in unitNamesList]
+    tempListWithCommaSepValues = [map(lambda x: x.strip(), item.split('$')) for item in unitNamesList]
     unitNamesListWithCommaSep = [item for sub_list in tempListWithCommaSepValues for item in sub_list]
 
     # check how many entities are clubbed using comma separated in master table
     commaSeparatedList = []
     for i in range(len(unitNamesList)):
-        if (unitNamesList[i].count(",") + 1)>1:
+        if (unitNamesList[i].count("$") + 1)>1:
             commaSeparatedList.append(unitNamesList[i])
 
     # mhIntradayDataDf = pd.read_csv(targetFilePath, skiprows=5, usecols=range(98))
@@ -77,7 +77,7 @@ def getMhIntradayDcData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), targ
 
     # check matching columns starts
     for temp in commaSeparatedList:
-        tempList = temp.split(',')
+        tempList = temp.split('$')
         matchingList = []
         for unit in tempList:
             if unit in mhIntradayDcDf.columns:

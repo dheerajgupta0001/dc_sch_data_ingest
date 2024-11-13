@@ -25,16 +25,16 @@ def getGujIntradaySchData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), ta
     # check how many entities are clubbed using comma separated in master table
     commaSeparatedList = []
     for i in range(len(unitNamesList)):
-        if (unitNamesList[i].count(",") + 1)>1:
+        if (unitNamesList[i].count("$") + 1)>1:
             commaSeparatedList.append(unitNamesList[i])
 
     gujIntradayDataDf = pd.read_csv(
         targetFilePath, nrows= 96)
-    gujIntradayDataDf = gujIntradayDataDf.iloc[:, 2:]
+    # gujIntradayDataDf = gujIntradayDataDf.iloc[:, 2:]
 
     # check matching columns starts
     for temp in commaSeparatedList:
-        tempList = temp.split(',')
+        tempList = temp.split('$')
         matchingList = []
         for unit in tempList:
             if unit in gujIntradayDataDf.columns:
@@ -52,9 +52,9 @@ def getGujIntradaySchData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), ta
     hoursMinutes = gujIntradayDataDf.iloc[:, 0]
     dateTimeList = []
     for temp in hoursMinutes:
-        hrsMin = temp.split('-')[0]
-        hours = int(hrsMin.split(':')[0])
-        minutes = int(hrsMin.split(':')[1])
+        # hrsMin = temp.split('-')[0]
+        hours = int(temp.split(':')[0])
+        minutes = int(temp.split(':')[1])
         dateBlock = targetDt + dt.timedelta(hours= hours, minutes= minutes)
         dateTimeList.append(dateBlock)
 
