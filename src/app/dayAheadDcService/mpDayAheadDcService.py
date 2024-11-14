@@ -1,6 +1,6 @@
 from src.config.appConfig import getJsonConfig
 from src.dayAheadDcDataFetcher.dataFetcherHandler import getMpDayAheadDcData
-from src.repos.dayAheadDcDataRepos.insertMpDayAheadDcMetricData import insertMpDayAheadDcData
+from src.repos.dayAheadDcDataRepos.measDataRepo import MeasDataRepo
 from typing import List
 import datetime as dt
 from src.typeDefs.dayAheadDcTypeRecord.mpDayAheadDcRecord import IMpDayAheadDcDataRecord

@@ -35,16 +35,24 @@ def getMpIntradaySchData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), tar
     mpIntradayDataDf = mpIntradayDataDf.melt(id_vars=['intraday_sch_file_tag'], value_name='sch_data', var_name= 'block_number')
     mpIntradaySchDf = pd.DataFrame(columns=['intraday_sch_file_tag', 'block_number', 'sch_data'])
 
-    for unit in unitNamesList:
-        for index, row in mpIntradayDataDf.iterrows():
-            if unit == row['intraday_sch_file_tag']:
-                matchingUnitList = []
-                matchingUnitList.append(mpIntradayDataDf['intraday_sch_file_tag'][index])
-                matchingUnitList.append(mpIntradayDataDf['block_number'][index])
-                matchingUnitList.append(mpIntradayDataDf['sch_data'][index])
-                mpIntradaySchDf.loc[len(mpIntradaySchDf)] = matchingUnitList
+    # for unit in unitNamesList:
+    #     for index, row in mpIntradayDataDf.iterrows():
+    #         if unit == row['intraday_sch_file_tag']:
+    #             matchingUnitList = []
+    #             matchingUnitList.append(mpIntradayDataDf['intraday_sch_file_tag'][index])
+    #             matchingUnitList.append(mpIntradayDataDf['block_number'][index])
+    #             matchingUnitList.append(mpIntradayDataDf['sch_data'][index])
+    #             mpIntradaySchDf.loc[len(mpIntradaySchDf)] = matchingUnitList
+    
+    # test starts
+    mask = mpIntradayDataDf['intraday_sch_file_tag'].isin(unitNamesList)
+    # Filter DataFrame using mask and select only required columns
+    result_df = mpIntradayDataDf[mask][['intraday_sch_file_tag', 'block_number', 'sch_data']].copy()
+    # Reset index to ensure continuous indexing
+    result_df.reset_index(drop=True, inplace=True)
+    # test ends
 
-    mpIntradaySchDf = pd.pivot_table(mpIntradaySchDf, values ='sch_data', index =['block_number'],
+    mpIntradaySchDf = pd.pivot_table(result_df, values ='sch_data', index =['block_number'],
                          columns =['intraday_sch_file_tag'])
     mpIntradaySchDf = mpIntradaySchDf.reset_index()
     dateTimeList = []

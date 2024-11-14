@@ -52,3 +52,11 @@ for sftpRow in sftpConfig:
             mhDayAheadDcService(excelFilePath, dayAheadDt)
         except Exception as ex:
             logger.error(f"Exception occurred : {str(ex)}", exc_info=False)
+
+    if sftpRow['day_ahead_file_type'] == 'mp_day_ahead_dc_data':
+        try:
+            # readSftpFie(sftphost, sftpRow, dayAheadDt, False, False, True)
+            excelFilePath = getExcelFilePath(jsonConfig['mp_day_ahead_file_location'], sftpRow['day_ahead_filename'], sftpRow['format'], targetDt)
+            mpDayAheadDcService(excelFilePath, targetDt)
+        except Exception as ex:
+            logger.error(f"Exception occurred : {str(ex)}", exc_info=False)

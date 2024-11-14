@@ -56,7 +56,7 @@ def readSftpFie(sftphost, sftpRow, targetMonth: dt.datetime, isDC: bool, isSch: 
         sftp = ssh.open_sftp()
         
         # Get current working directory
-        print(f"Current working directory: {sftp.getcwd()}")
+        # print(f"Current working directory: {sftp.getcwd()}")
         
         # List contents of the home directory
         # print("\nContents of home directory:")
@@ -72,7 +72,7 @@ def readSftpFie(sftphost, sftpRow, targetMonth: dt.datetime, isDC: bool, isSch: 
             
             # Check if file exists in the directory listing
             if remote_file in dir_contents:
-                print(f"\nFile {remote_file} exists in the directory listing.")
+                # print(f"\nFile {remote_file} exists in the directory listing.")
                 
                 # Try to get file attributes
                 # try:

@@ -40,16 +40,24 @@ def getMhIntradaySchData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), tar
     mhIntradayDataDf = mhIntradayDataDf.melt(id_vars=['intraday_sch_file_tag'], value_name='sch_data', var_name= 'block_number')
     mhIntradaySchDf = pd.DataFrame(columns=['intraday_sch_file_tag', 'block_number', 'sch_data'])
 
-    for unit in unitNamesListWithCommaSep:
-        for index, row in mhIntradayDataDf.iterrows():
-            if unit == row['intraday_sch_file_tag']:
-                matchingUnitList = []
-                matchingUnitList.append(mhIntradayDataDf['intraday_sch_file_tag'][index])
-                matchingUnitList.append(mhIntradayDataDf['block_number'][index])
-                matchingUnitList.append(mhIntradayDataDf['sch_data'][index])
-                mhIntradaySchDf.loc[len(mhIntradaySchDf)] = matchingUnitList
+    # for unit in unitNamesListWithCommaSep:
+    #     for index, row in mhIntradayDataDf.iterrows():
+    #         if unit == row['intraday_sch_file_tag']:
+    #             matchingUnitList = []
+    #             matchingUnitList.append(mhIntradayDataDf['intraday_sch_file_tag'][index])
+    #             matchingUnitList.append(mhIntradayDataDf['block_number'][index])
+    #             matchingUnitList.append(mhIntradayDataDf['sch_data'][index])
+    #             mhIntradaySchDf.loc[len(mhIntradaySchDf)] = matchingUnitList
 
-    mhIntradaySchDf = pd.pivot_table(mhIntradaySchDf, values ='sch_data', index =['block_number'],
+    # test starts
+    mask = mhIntradayDataDf['intraday_sch_file_tag'].isin(unitNamesListWithCommaSep)
+    # Filter DataFrame using mask and select only required columns
+    result_df = mhIntradayDataDf[mask][['intraday_sch_file_tag', 'block_number', 'sch_data']].copy()
+    # Reset index to ensure continuous indexing
+    result_df.reset_index(drop=True, inplace=True)
+    # test ends
+
+    mhIntradaySchDf = pd.pivot_table(result_df, values ='sch_data', index =['block_number'],
                          columns =['intraday_sch_file_tag'])
     mhIntradaySchDf = mhIntradaySchDf.reset_index()
     dateTimeList = []

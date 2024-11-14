@@ -34,16 +34,24 @@ def getMpIntradayDcData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), targ
     mpIntradayDataDf = mpIntradayDataDf.melt(id_vars=['intraday_dc_file_tag'], value_name='dc_data', var_name= 'block_number')
     mpIntradayDcDf = pd.DataFrame(columns=['intraday_dc_file_tag', 'block_number', 'dc_data'])
 
-    for unit in unitNamesList:
-        for index, row in mpIntradayDataDf.iterrows():
-            if unit == row['intraday_dc_file_tag']:
-                matchingUnitList = []
-                matchingUnitList.append(mpIntradayDataDf['intraday_dc_file_tag'][index])
-                matchingUnitList.append(mpIntradayDataDf['block_number'][index])
-                matchingUnitList.append(mpIntradayDataDf['dc_data'][index])
-                mpIntradayDcDf.loc[len(mpIntradayDcDf)] = matchingUnitList
+    # for unit in unitNamesList:
+    #     for index, row in mpIntradayDataDf.iterrows():
+    #         if unit == row['intraday_dc_file_tag']:
+    #             matchingUnitList = []
+    #             matchingUnitList.append(mpIntradayDataDf['intraday_dc_file_tag'][index])
+    #             matchingUnitList.append(mpIntradayDataDf['block_number'][index])
+    #             matchingUnitList.append(mpIntradayDataDf['dc_data'][index])
+    #             mpIntradayDcDf.loc[len(mpIntradayDcDf)] = matchingUnitList
 
-    mpIntradayDcDf = pd.pivot_table(mpIntradayDcDf, values ='dc_data', index =['block_number'],
+    # test starts
+    mask = mpIntradayDataDf['intraday_dc_file_tag'].isin(unitNamesList)
+    # Filter DataFrame using mask and select only required columns
+    result_df = mpIntradayDataDf[mask][['intraday_dc_file_tag', 'block_number', 'dc_data']].copy()
+    # Reset index to ensure continuous indexing
+    result_df.reset_index(drop=True, inplace=True)
+    # test ends
+
+    mpIntradayDcDf = pd.pivot_table(result_df, values ='dc_data', index =['block_number'],
                          columns =['intraday_dc_file_tag'])
     mpIntradayDcDf = mpIntradayDcDf.reset_index()
     dateTimeList = []

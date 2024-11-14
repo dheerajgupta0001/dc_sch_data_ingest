@@ -73,7 +73,7 @@
             "local_day_ahead_dir": "D:\\statesFiles\\MP_Data\\MP_DC_Files",
             "filename": "DCfile_{{dt}}.csv",
             "sch_filename": "DSfile_{{dt}}.csv",
-            "day_ahead_filename": "DSfile_{{dt}}.csv",
+            "day_ahead_filename": "DCfile_{{dt}}.csv",
             "format": "%d-%m-%Y"
         }
     ]

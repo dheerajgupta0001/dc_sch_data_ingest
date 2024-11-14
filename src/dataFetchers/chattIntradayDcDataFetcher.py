@@ -30,14 +30,22 @@ def getChattIntradayDcData(targetFilePath: str, unitDetailsDf: pd.DataFrame(), t
     chattIntradayDataDf = chattIntradayDataDf.melt(id_vars=['intraday_dc_file_tag'], value_name='dc_data', var_name= 'block_number')
     chattIntradayDcDf = pd.DataFrame(columns=['intraday_dc_file_tag', 'block_number', 'dc_data'])
 
-    for unit in unitNamesList:
-        for index, row in chattIntradayDataDf.iterrows():
-            if unit == row['intraday_dc_file_tag']:
-                matchingUnitList = []
-                matchingUnitList.append(chattIntradayDataDf['intraday_dc_file_tag'][index])
-                matchingUnitList.append(chattIntradayDataDf['block_number'][index])
-                matchingUnitList.append(chattIntradayDataDf['dc_data'][index])
-                chattIntradayDcDf.loc[len(chattIntradayDcDf)] = matchingUnitList
+    # for unit in unitNamesList:
+    #     for index, row in chattIntradayDataDf.iterrows():
+    #         if unit == row['intraday_dc_file_tag']:
+    #             matchingUnitList = []
+    #             matchingUnitList.append(chattIntradayDataDf['intraday_dc_file_tag'][index])
+    #             matchingUnitList.append(chattIntradayDataDf['block_number'][index])
+    #             matchingUnitList.append(chattIntradayDataDf['dc_data'][index])
+    #             chattIntradayDcDf.loc[len(chattIntradayDcDf)] = matchingUnitList
+
+    # test starts
+    mask = chattIntradayDataDf['intraday_dc_file_tag'].isin(unitNamesList)
+    # Filter DataFrame using mask and select only required columns
+    result_df = chattIntradayDataDf[mask][['intraday_dc_file_tag', 'block_number', 'dc_data']].copy()
+    # Reset index to ensure continuous indexing
+    result_df.reset_index(drop=True, inplace=True)
+    # test ends
 
     chattIntradayDcDf = pd.pivot_table(chattIntradayDcDf, values ='dc_data', index =['block_number'],
                          columns =['intraday_dc_file_tag'])
